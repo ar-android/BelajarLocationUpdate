@@ -48,6 +48,9 @@ public class LocationUtils implements LocationListener,
 
     Context context;
 
+    LastLocation lastLocation;
+    LocationUpdate locationUpdate;
+
     public LocationUtils(Context context) {
         this.context = context;
         mLocationRequest = new LocationRequest();
@@ -57,6 +60,12 @@ public class LocationUtils implements LocationListener,
                 .addApi(LocationServices.API)
                 .build();
         Log.d(TAG, "LocationUtils: isCreated");
+    }
+
+
+    public void setLocationCallback(LastLocation lastLocation, LocationUpdate locationUpdate) {
+        this.lastLocation = lastLocation;
+        this.locationUpdate = locationUpdate;
     }
 
     public void checkGpsService() {
@@ -121,11 +130,14 @@ public class LocationUtils implements LocationListener,
 
         Log.d(TAG, "lastLatitude: " + mLastLocation.getLatitude());
         Log.d(TAG, "lastLongitude: " + mLastLocation.getLongitude());
+
+        lastLocation.onLastLocationCallback(mLastLocation);
     }
 
     @Override public void onLocationChanged(Location location) {
         Log.d(TAG, "Latitude : " + location.getLatitude());
         Log.d(TAG, "Longitude : " + location.getLongitude());
+        locationUpdate.onLocationUpdate(location);
     }
 
     @Override public void onConnected(@Nullable Bundle bundle) {
@@ -152,5 +164,13 @@ public class LocationUtils implements LocationListener,
 
     @Override public void onStartLocationUtils() {
         mGoogleApiClient.connect();
+    }
+
+    public interface LastLocation {
+        void onLastLocationCallback(Location location);
+    }
+
+    public interface LocationUpdate {
+        void onLocationUpdate(Location location);
     }
 }
